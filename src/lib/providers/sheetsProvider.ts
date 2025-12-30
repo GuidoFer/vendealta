@@ -12,38 +12,62 @@ export class SheetsProvider implements DataProvider {
 
   constructor() {
   // Validar que existan las ENV variables
-  if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-    throw new Error('Missing Google Service Account credentials in ENV');
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const keyBase64 = process.env.GOOGLE_PRIVATE_KEY_BASE64;
+  const keyRaw = process.env.GOOGLE_PRIVATE_KEY;
+
+  if (!email) {
+    throw new Error('Missing GOOGLE_SERVICE_ACCOUNT_EMAIL in ENV');
   }
 
-  // DEBUG LOGS (TEMPORAL - REMOVER EN PRODUCCIÓN)
-  console.log('=== DEBUG GOOGLE AUTH ===');
-  console.log('Email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
-  console.log('Key length:', process.env.GOOGLE_PRIVATE_KEY.length);
-  console.log('Key starts with:', process.env.GOOGLE_PRIVATE_KEY.substring(0, 50));
-  console.log('Key ends with:', process.env.GOOGLE_PRIVATE_KEY.substring(process.env.GOOGLE_PRIVATE_KEY.length - 50));
-  console.log('Has quotes:', process.env.GOOGLE_PRIVATE_KEY.startsWith('"'));
-  console.log('First \\n position:', process.env.GOOGLE_PRIVATE_KEY.indexOf('\\n'));
-  
-  // Intentar limpiar el key
-  let cleanKey = process.env.GOOGLE_PRIVATE_KEY;
-  
-  // Si tiene comillas al inicio/final, removerlas
-  if (cleanKey.startsWith('"') && cleanKey.endsWith('"')) {
-    cleanKey = cleanKey.slice(1, -1);
-    console.log('Removed quotes, new length:', cleanKey.length);
+  if (!keyBase64 && !keyRaw) {
+    throw new Error('Missing GOOGLE_PRIVATE_KEY or GOOGLE_PRIVATE_KEY_BASE64 in ENV');
   }
+
+  // Decodificar el key desde Base64 (método preferido)
+  let privateKey: string;
   
-  // Reemplazar \\n con saltos reales
-  cleanKey = cleanKey.replace(/\\n/g, '\n');
-  console.log('After replace, first 50 chars:', cleanKey.substring(0, 50));
-  console.log('========================');
+  if (keyBase64) {
+    console.log('[SheetsProvider] Using Base64 encoded private key');
+    try {
+      privateKey = Buffer.from(keyBase64, 'base64').toString('utf-8');
+      console.log('[SheetsProvider] Key decoded successfully, length:', privateKey.length);
+    } catch (error) {
+      console.error('[SheetsProvider] Error decoding Base64 key:', error);
+      throw new Error('Failed to decode GOOGLE_PRIVATE_KEY_BASE64');
+    }
+  } else {
+    console.log('[SheetsProvider] Using raw private key (not Base64)');
+    privateKey = keyRaw;
+    
+    // Si tiene comillas, removerlas
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+      privateKey = privateKey.slice(1, -1);
+    }
+    
+    // Reemplazar \\n con saltos reales
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+
+  // Validar que el key tenga el formato correcto
+  if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+    throw new Error('Invalid private key format: missing BEGIN marker');
+  }
+
+  if (!privateKey.includes('END PRIVATE KEY')) {
+    throw new Error('Invalid private key format: missing END marker');
+  }
+
+  console.log('[SheetsProvider] Private key validation passed');
+  console.log('[SheetsProvider] Creating JWT auth with email:', email);
 
   this.serviceAccountAuth = new JWT({
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    key: cleanKey,
+    email: email,
+    key: privateKey,
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   });
+
+  console.log('[SheetsProvider] JWT auth created successfully');
 }
 
   /**
