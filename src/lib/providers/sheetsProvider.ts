@@ -11,18 +11,40 @@ export class SheetsProvider implements DataProvider {
   private serviceAccountAuth: JWT;
 
   constructor() {
-    // Validar que existan las ENV variables
-    if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-      throw new Error('Missing Google Service Account credentials in ENV');
-    }
-
-    this.serviceAccountAuth = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      // Reemplaza los saltos de línea literales para que la llave sea válida
-      key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
+  // Validar que existan las ENV variables
+  if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    throw new Error('Missing Google Service Account credentials in ENV');
   }
+
+  // DEBUG LOGS (TEMPORAL - REMOVER EN PRODUCCIÓN)
+  console.log('=== DEBUG GOOGLE AUTH ===');
+  console.log('Email:', process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+  console.log('Key length:', process.env.GOOGLE_PRIVATE_KEY.length);
+  console.log('Key starts with:', process.env.GOOGLE_PRIVATE_KEY.substring(0, 50));
+  console.log('Key ends with:', process.env.GOOGLE_PRIVATE_KEY.substring(process.env.GOOGLE_PRIVATE_KEY.length - 50));
+  console.log('Has quotes:', process.env.GOOGLE_PRIVATE_KEY.startsWith('"'));
+  console.log('First \\n position:', process.env.GOOGLE_PRIVATE_KEY.indexOf('\\n'));
+  
+  // Intentar limpiar el key
+  let cleanKey = process.env.GOOGLE_PRIVATE_KEY;
+  
+  // Si tiene comillas al inicio/final, removerlas
+  if (cleanKey.startsWith('"') && cleanKey.endsWith('"')) {
+    cleanKey = cleanKey.slice(1, -1);
+    console.log('Removed quotes, new length:', cleanKey.length);
+  }
+  
+  // Reemplazar \\n con saltos reales
+  cleanKey = cleanKey.replace(/\\n/g, '\n');
+  console.log('After replace, first 50 chars:', cleanKey.substring(0, 50));
+  console.log('========================');
+
+  this.serviceAccountAuth = new JWT({
+    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    key: cleanKey,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
+}
 
   /**
    * Obtiene el perfil completo leyendo las 3 pestañas del Google Sheet
