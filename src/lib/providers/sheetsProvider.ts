@@ -11,86 +11,60 @@ export class SheetsProvider implements DataProvider {
   private serviceAccountAuth: JWT;
 
   constructor() {
-  // Validar que existan las ENV variables
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const keyBase64 = process.env.GOOGLE_PRIVATE_KEY_BASE64;
-  const keyRaw = process.env.GOOGLE_PRIVATE_KEY;
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const keyBase64 = process.env.GOOGLE_PRIVATE_KEY_BASE64;
+    const keyRaw = process.env.GOOGLE_PRIVATE_KEY;
 
-  if (!email) {
-    throw new Error('Missing GOOGLE_SERVICE_ACCOUNT_EMAIL in ENV');
-  }
-
-  if (!keyBase64 && !keyRaw) {
-    throw new Error('Missing GOOGLE_PRIVATE_KEY or GOOGLE_PRIVATE_KEY_BASE64 in ENV');
-  }
-
-  // Decodificar el key desde Base64 (método preferido)
-  let privateKey: string;
-  
-  if (keyBase64) {
-    console.log('[SheetsProvider] Using Base64 encoded private key');
-    try {
-      privateKey = Buffer.from(keyBase64, 'base64').toString('utf-8');
-      console.log('[SheetsProvider] Key decoded successfully, length:', privateKey.length);
-    } catch (error) {
-      console.error('[SheetsProvider] Error decoding Base64 key:', error);
-      throw new Error('Failed to decode GOOGLE_PRIVATE_KEY_BASE64');
+    if (!email) {
+      throw new Error('Missing GOOGLE_SERVICE_ACCOUNT_EMAIL in ENV');
     }
-  } else {
-    console.log('[SheetsProvider] Using raw private key (not Base64)');
-    privateKey = keyRaw;
-    
-    // Si tiene comillas, removerlas
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = privateKey.slice(1, -1);
+
+    if (!keyBase64 && !keyRaw) {
+      throw new Error('Missing GOOGLE_PRIVATE_KEY or GOOGLE_PRIVATE_KEY_BASE64 in ENV');
     }
+
+    let privateKey: string;
     
-    // Reemplazar \\n con saltos reales
-    privateKey = privateKey.replace(/\\n/g, '\n');
+    if (keyBase64) {
+      console.log('[SheetsProvider] Using Base64 encoded private key');
+      try {
+        privateKey = Buffer.from(keyBase64, 'base64').toString('utf-8');
+      } catch (error) {
+        console.error('[SheetsProvider] Error decoding Base64 key:', error);
+        throw new Error('Failed to decode GOOGLE_PRIVATE_KEY_BASE64');
+      }
+    } else {
+      console.log('[SheetsProvider] Using raw private key');
+      privateKey = keyRaw!;
+      if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.slice(1, -1);
+      }
+      privateKey = privateKey.replace(/\\n/g, '\n');
+    }
+
+    if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+      throw new Error('Invalid private key format: missing BEGIN marker');
+    }
+
+    this.serviceAccountAuth = new JWT({
+      email: email,
+      key: privateKey,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    });
+
+    console.log('[SheetsProvider] JWT auth created successfully');
   }
 
-  // Validar que el key tenga el formato correcto
-  if (!privateKey.includes('BEGIN PRIVATE KEY')) {
-    throw new Error('Invalid private key format: missing BEGIN marker');
-  }
-
-  if (!privateKey.includes('END PRIVATE KEY')) {
-    throw new Error('Invalid private key format: missing END marker');
-  }
-
-  console.log('[SheetsProvider] Private key validation passed');
-  console.log('[SheetsProvider] Creating JWT auth with email:', email);
-
-  this.serviceAccountAuth = new JWT({
-    email: email,
-    key: privateKey,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-  });
-
-  console.log('[SheetsProvider] JWT auth created successfully');
-}
-
-  /**
-   * Obtiene el perfil completo leyendo las 3 pestañas del Google Sheet
-   */
   async getVendorProfile(vendorId: string): Promise<VendorProfile> {
     try {
       const sheetId = await this.findSheetByVendorId(vendorId);
-      
-      if (!sheetId) {
-        throw new Error(`Sheet ID no mapeado para el vendedor: ${vendorId}`);
-      }
+      if (!sheetId) throw new Error(`Sheet ID no mapeado para: ${vendorId}`);
 
       const doc = new GoogleSpreadsheet(sheetId, this.serviceAccountAuth);
       await doc.loadInfo();
 
-      // 1. Leer y validar Metadatos
       const vendorMeta = await this.readVendorMeta(doc);
-      
-      // 2. Leer y validar Productos
       const products = await this.readProducts(doc);
-      
-      // 3. Leer y validar Settings
       const settings = await this.readSettings(doc);
 
       return {
@@ -110,26 +84,16 @@ export class SheetsProvider implements DataProvider {
     return profile.products;
   }
 
-  /**
-   * Busca el ID del Sheet en la variable de entorno SHEETS_MAPPING
-   * Formato esperado: juan-perez:ID123,maria-luna:ID456
-   */
   private async findSheetByVendorId(vendorId: string): Promise<string | null> {
     const mapping = process.env.SHEETS_MAPPING || '';
     const entries = mapping.split(',');
-    
     for (const entry of entries) {
       const [id, sheetId] = entry.split(':');
-      if (id.trim() === vendorId) {
-        return sheetId.trim();
-      }
+      if (id?.trim() === vendorId) return sheetId?.trim();
     }
     return null;
   }
 
-  /**
-   * Tab "vendor_meta": Convierte pares Key-Value a objeto
-   */
   private async readVendorMeta(doc: GoogleSpreadsheet): Promise<VendorMeta> {
     const sheet = doc.sheetsByTitle['vendor_meta'];
     if (!sheet) throw new Error('Pestaña "vendor_meta" no encontrada');
@@ -145,9 +109,6 @@ export class SheetsProvider implements DataProvider {
     return VendorMetaSchema.parse(data);
   }
 
-  /**
-   * Tab "products": Convierte cada fila en un producto
-   */
   private async readProducts(doc: GoogleSpreadsheet): Promise<Product[]> {
     const sheet = doc.sheetsByTitle['products'];
     if (!sheet) throw new Error('Pestaña "products" no encontrada');
@@ -165,17 +126,11 @@ export class SheetsProvider implements DataProvider {
         category: row.get('category'),
         available: String(row.get('available')).toUpperCase().trim() === 'TRUE',
       };
-
-      // Validar cada producto individualmente
-      const validated = ProductSchema.parse(rawProduct);
-      products.push(validated);
+      products.push(ProductSchema.parse(rawProduct));
     }
     return products;
   }
 
-  /**
-   * Tab "settings": Convierte configuraciones a tipos booleano/string reales
-   */
   private async readSettings(doc: GoogleSpreadsheet): Promise<Settings> {
     const sheet = doc.sheetsByTitle['settings'];
     if (!sheet) throw new Error('Pestaña "settings" no encontrada');
@@ -186,23 +141,13 @@ export class SheetsProvider implements DataProvider {
     rows.forEach(row => {
       const setting = row.get('setting');
       const rawValue = row.get('value');
-      
       if (setting) {
-        // Normalizamos el valor a minúsculas para comparar
         const valueStr = String(rawValue).toLowerCase().trim();
-        
-        if (valueStr === 'true') {
-          data[setting] = true;
-        } else if (valueStr === 'false') {
-          data[setting] = false;
-        } else {
-          data[setting] = rawValue;
-        }
+        if (valueStr === 'true') data[setting] = true;
+        else if (valueStr === 'false') data[setting] = false;
+        else data[setting] = rawValue;
       }
     });
-
-    // Debug opcional en consola de Kali para ver qué llega:
-    // console.log("Datos de settings procesados:", data);
 
     return SettingsSchema.parse(data);
   }
