@@ -111,23 +111,44 @@ export class SheetsProvider implements DataProvider {
 
   private async readProducts(doc: GoogleSpreadsheet): Promise<Product[]> {
     const sheet = doc.sheetsByTitle['products'];
-    if (!sheet) throw new Error('Pestaña "products" no encontrada');
+    if (!sheet) {
+      throw new Error('Tab "products" not found in sheet');
+    }
 
     const rows = await sheet.getRows();
     const products: Product[] = [];
 
     for (const row of rows) {
+      // Leer múltiples URLs de imagen
+      const imageUrl1 = row.get('image_url_1') || row.get('image_url') || undefined;
+      const imageUrl2 = row.get('image_url_2') || undefined;
+      const imageUrl3 = row.get('image_url_3') || undefined;
+      
+      // Construir array de URLs (filtrar vacías)
+      const imageUrls = [imageUrl1, imageUrl2, imageUrl3]
+        .filter(url => url && url.trim() !== '');
+
       const rawProduct = {
         id: row.get('id'),
         name: row.get('name'),
         price: parseFloat(row.get('price')),
         description: row.get('description') || undefined,
-        imageUrl: row.get('image_url') || undefined,
+        
+        // Legacy: primera imagen como imageUrl
+        imageUrl: imageUrls[0] || undefined,
+        
+        // Nuevo: todas las imágenes
+        imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+        
         category: row.get('category'),
-        available: String(row.get('available')).toUpperCase().trim() === 'TRUE',
+        available: row.get('available') === 'TRUE',
       };
-      products.push(ProductSchema.parse(rawProduct));
+
+      // Validar con Zod
+      const validated = ProductSchema.parse(rawProduct);
+      products.push(validated);
     }
+
     return products;
   }
 

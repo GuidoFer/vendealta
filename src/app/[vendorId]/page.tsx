@@ -1,7 +1,7 @@
 import { getDataProvider } from '@/lib/dataProvider';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { WhatsAppButton } from '@/components/vendor/WhatsAppButton';
-import { TikTokLink } from '@/components/vendor/TikTokLink'; // <-- IMPORTA AQUÍ
+import { TikTokLink } from '@/components/vendor/TikTokLink';
 import { notFound } from 'next/navigation';
 
 interface VendorPageProps {
@@ -11,13 +11,19 @@ interface VendorPageProps {
 export default async function VendorPage({ params }: VendorPageProps) {
   const { vendorId } = await params;
   const provider = getDataProvider();
-  
+
   try {
     const vendor = await provider.getVendorProfile(vendorId);
 
+    // ✅ FILTRAR SOLO PRODUCTOS DISPONIBLES
+    const availableProducts = vendor.products.filter(p => p.available);
+
     return (
       <main className="min-h-screen bg-gray-50">
-        <header style={{ backgroundColor: vendor.settings.theme_color }} className="text-white p-8 text-center shadow-lg">
+        <header 
+          style={{ backgroundColor: vendor.settings.theme_color }} 
+          className="text-white p-8 text-center shadow-lg"
+        >
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl font-bold">{vendor.name}</h1>
             <p className="mt-2 opacity-90 italic">{vendor.bio}</p>
@@ -32,7 +38,7 @@ export default async function VendorPage({ params }: VendorPageProps) {
               vendorName={vendor.name}
               vendorId={vendor.vendor_id}
             />
-
+            
             {vendor.tiktok && vendor.settings.show_tiktok && (
               <TikTokLink 
                 username={vendor.tiktok} 
@@ -42,12 +48,23 @@ export default async function VendorPage({ params }: VendorPageProps) {
             )}
           </div>
 
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Nuestro Catálogo</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {vendor.products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+            Nuestro Catálogo
+          </h2>
+
+          {/* ✅ RENDERIZAR SOLO PRODUCTOS DISPONIBLES */}
+          {availableProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {availableProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg">No hay productos disponibles en este momento.</p>
+              <p className="text-sm mt-2">Vuelve pronto para ver nuevos productos.</p>
+            </div>
+          )}
         </div>
       </main>
     );

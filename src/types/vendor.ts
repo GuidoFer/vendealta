@@ -4,7 +4,8 @@ export interface Product {
   name: string;
   price: number;
   description?: string;
-  imageUrl?: string;
+  imageUrl?: string;      // Legacy: single image
+  imageUrls?: string[];   // ✅ NUEVO: multiple images
   category: 'ropa' | 'calzado' | 'accesorios' | 'otros';
   available: boolean;
 }
