@@ -1,5 +1,3 @@
-// src/components/ui/ImageModal.tsx
-
 'use client';
 
 import { useEffect } from 'react';
@@ -24,21 +22,38 @@ export function ImageModal({
   onPrev,
   productName,
 }: ImageModalProps) {
-  // Cerrar con ESC
+  
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+    if (!isOpen) return;
+
+    // 1. Bloquear el scroll del cuerpo
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+
+    // 2. Creamos un estado "dummy" en el historial para capturar el botón atrás
+    // Usamos pushState con un objeto de identificación
+    window.history.pushState({ isModal: true }, '');
+
+    const handlePopState = (event: PopStateEvent) => {
+      // Si el usuario presiona atrás, cerramos el modal sin navegar
+      onClose();
     };
-    
-    if (isOpen) {
-      document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden'; // Bloquear scroll
-    }
-    
+
+    // Escuchamos el botón atrás
+    window.addEventListener('popstate', handlePopState);
+
     return () => {
-      document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'unset';
+      window.removeEventListener('popstate', handlePopState);
+      document.body.style.overflow = originalStyle;
+      
+      // 3. SI el modal se cierra manualmente (X o click fuera), 
+      // limpiamos el estado dummy que creamos para no ensuciar el historial
+      if (window.history.state?.isModal) {
+        window.history.back();
+      }
     };
+    // IMPORTANTE: Solo dependemos de isOpen. 
+    // Al cambiar fotos (currentIndex), este efecto NO se reinicia.
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -47,88 +62,57 @@ export function ImageModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-0"
       onClick={onClose}
     >
       {/* Botón cerrar */}
       <button
-        onClick={onClose}
-        className="absolute top-4 right-4 text-white text-4xl font-light hover:text-gray-300 z-10"
-        aria-label="Cerrar"
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        className="absolute top-6 right-6 text-white text-4xl font-light z-[1000] w-12 h-12 flex items-center justify-center bg-black/20 rounded-full"
       >
         ×
       </button>
 
-      {/* Contenedor de imagen */}
       <div
-        className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center"
+        className="relative w-full h-full flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Imagen principal */}
-        <div className="relative w-full h-full">
+        <div className="relative w-full h-[80vh]">
           <Image
             src={images[currentIndex]}
-            alt={`${productName} - Imagen ${currentIndex + 1}`}
+            alt={productName}
             fill
             className="object-contain"
-            sizes="(max-width: 768px) 100vw, 80vw"
+            sizes="100vw"
             priority
           />
         </div>
 
-        {/* Flechas de navegación (si hay múltiples imágenes) */}
+        {/* Navegación */}
         {hasMultiple && (
           <>
             <button
-              onClick={onPrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all"
-              aria-label="Imagen anterior"
+              onClick={(e) => { e.stopPropagation(); onPrev(); }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-4 rounded-full z-[1000]"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-
             <button
-              onClick={onNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-all"
-              aria-label="Siguiente imagen"
+              onClick={(e) => { e.stopPropagation(); onNext(); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-4 rounded-full z-[1000]"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </>
         )}
 
-        {/* Indicadores (dots) */}
+        {/* Contador */}
         {hasMultiple && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  const diff = idx - currentIndex;
-                  if (diff > 0) {
-                    for (let i = 0; i < diff; i++) onNext();
-                  } else if (diff < 0) {
-                    for (let i = 0; i < Math.abs(diff); i++) onPrev();
-                  }
-                }}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  idx === currentIndex
-                    ? 'bg-white w-8'
-                    : 'bg-gray-400 hover:bg-gray-300'
-                }`}
-                aria-label={`Ver imagen ${idx + 1}`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Contador de imágenes */}
-        {hasMultiple && (
-          <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+          <div className="absolute top-6 left-6 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-[1000]">
             {currentIndex + 1} / {images.length}
           </div>
         )}
