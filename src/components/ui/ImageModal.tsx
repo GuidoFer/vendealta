@@ -13,6 +13,7 @@ interface ImageModalProps {
   productName: string;
 }
 
+// ✅ ASEGÚRATE DE QUE DIGA "export function"
 export function ImageModal({
   images,
   currentIndex,
@@ -26,34 +27,42 @@ export function ImageModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    // 1. Bloquear el scroll del cuerpo
+    // 🚩 ACTIVAR SEMÁFORO GLOBAL
+    // @ts-ignore
+    window.isModalOpen = true;
+
     const originalStyle = window.getComputedStyle(document.body).overflow;
     document.body.style.overflow = 'hidden';
 
-    // 2. Creamos un estado "dummy" en el historial para capturar el botón atrás
-    // Usamos pushState con un objeto de identificación
+    // Inyectar estado en el historial
     window.history.pushState({ isModal: true }, '');
 
-    const handlePopState = (event: PopStateEvent) => {
-      // Si el usuario presiona atrás, cerramos el modal sin navegar
+    const handlePopState = () => {
+      // @ts-ignore
+      window.isModalOpen = false; 
       onClose();
     };
 
-    // Escuchamos el botón atrás
     window.addEventListener('popstate', handlePopState);
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
       document.body.style.overflow = originalStyle;
       
-      // 3. SI el modal se cierra manualmente (X o click fuera), 
-      // limpiamos el estado dummy que creamos para no ensuciar el historial
+      // Manejo de cierre manual (X o fuera)
       if (window.history.state?.isModal) {
+        // @ts-ignore
+        window.isModalOpen = true; 
         window.history.back();
+        setTimeout(() => { 
+          // @ts-ignore
+          window.isModalOpen = false; 
+        }, 100);
+      } else {
+        // @ts-ignore
+        window.isModalOpen = false;
       }
     };
-    // IMPORTANTE: Solo dependemos de isOpen. 
-    // Al cambiar fotos (currentIndex), este efecto NO se reinicia.
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -62,10 +71,9 @@ export function ImageModal({
 
   return (
     <div
-      className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-0"
+      className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-0 animate-in fade-in duration-200"
       onClick={onClose}
     >
-      {/* Botón cerrar */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
         className="absolute top-6 right-6 text-white text-4xl font-light z-[1000] w-12 h-12 flex items-center justify-center bg-black/20 rounded-full"
@@ -88,7 +96,6 @@ export function ImageModal({
           />
         </div>
 
-        {/* Navegación */}
         {hasMultiple && (
           <>
             <button
@@ -110,12 +117,9 @@ export function ImageModal({
           </>
         )}
 
-        {/* Contador */}
-        {hasMultiple && (
-          <div className="absolute top-6 left-6 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-[1000]">
-            {currentIndex + 1} / {images.length}
-          </div>
-        )}
+        <div className="absolute top-6 left-6 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-[1000]">
+          {currentIndex + 1} / {images.length}
+        </div>
       </div>
     </div>
   );

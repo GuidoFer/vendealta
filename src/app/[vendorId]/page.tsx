@@ -2,6 +2,7 @@ import { getDataProvider } from '@/lib/dataProvider';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { WhatsAppButton } from '@/components/vendor/WhatsAppButton';
 import { TikTokLink } from '@/components/vendor/TikTokLink';
+import { ExitGuard } from '@/components/vendor/ExitGuard'; // ✅ Importado
 import { notFound } from 'next/navigation';
 
 interface VendorPageProps {
@@ -20,6 +21,9 @@ export default async function VendorPage({ params }: VendorPageProps) {
 
     return (
       <main className="min-h-screen bg-gray-50">
+        {/* ✅ ESTO EVITA QUE SALGAN POR ERROR */}
+        <ExitGuard />
+
         <header 
           style={{ backgroundColor: vendor.settings.theme_color }} 
           className="text-white p-8 text-center shadow-lg"
