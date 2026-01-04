@@ -40,7 +40,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <a 
-              href="https://wa.me/59178787878?text=Hola%2C%20quiero%20crear%20mi%20cat%C3%A1logo%20digital"
+              href="https://wa.me/59160605127?text=Hola%2C%20quiero%20crear%20mi%20cat%C3%A1logo%20digital"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative bg-white text-black px-8 py-5 rounded-2xl font-bold text-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 shadow-xl"
