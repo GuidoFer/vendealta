@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { Product } from '@/types/vendor';
 import { ImageModal } from './ImageModal';
-// ✅ NUEVO: Importamos el botón que creamos en el Paso 1
+// ✅ Importamos el botón de WhatsApp
 import { ProductWhatsAppButton } from '../vendor/ProductWhatsAppButton';
 
 interface ProductCardProps {
   product: Product;
-  vendorPhone: string;     // ✅ NUEVO
-  vendorName: string;      // ✅ NUEVO
-  vendorId: string;        // ✅ NUEVO
+  vendorPhone: string;     
+  vendorName: string;      
+  vendorId: string;        
 }
 
 export function ProductCard({ 
@@ -117,13 +117,14 @@ export function ProductCard({
             </span>
           </div>
 
-          {/* ✅ NUEVO: Botón WhatsApp por producto */}
+          {/* ✅ Pasamos la descripción al botón aquí */}
           <ProductWhatsAppButton
             phone={vendorPhone}
             vendorName={vendorName}
             vendorId={vendorId}
             productName={product.name}
             productPrice={product.price}
+            productDescription={product.description} 
           />
         </div>
       </div>
@@ -136,11 +137,11 @@ export function ProductCard({
         onNext={handleNext}
         onPrev={handlePrev}
         productName={product.name}
-        // ✅ Pasamos las props al modal por si quieres habilitar el botón allí también (Paso 5)
-        vendorPhone={vendorPhone}
-        vendorName={vendorName}
-        vendorId={vendorId}
+        vendorPhone={vendorPhone}      
+        vendorName={vendorName}         
+        vendorId={vendorId}             
         productPrice={product.price}
+        productDescription={product.description} // ✅ También al modal
       />
     </>
   );

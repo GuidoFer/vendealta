@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
-// ✅ Importamos el botón de WhatsApp
 import { ProductWhatsAppButton } from '../vendor/ProductWhatsAppButton';
 
 interface ImageModalProps {
@@ -13,11 +12,12 @@ interface ImageModalProps {
   onNext: () => void;
   onPrev: () => void;
   productName: string;
-  // ✅ NUEVAS PROPS PARA EL BOTÓN
+  // ✅ Props actualizadas
   vendorPhone?: string;
   vendorName?: string;
   vendorId?: string;
   productPrice?: number;
+  productDescription?: string; // ✅ NUEVO
 }
 
 export function ImageModal({
@@ -32,6 +32,7 @@ export function ImageModal({
   vendorName,
   vendorId,
   productPrice,
+  productDescription, // ✅ NUEVO
 }: ImageModalProps) {
   
   useEffect(() => {
@@ -89,8 +90,8 @@ export function ImageModal({
         ×
       </button>
 
-      {/* Nombre del Producto en el Modal */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-[1000] text-white text-center">
+      {/* Información Superior */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-[1000] text-white text-center w-full px-4">
         <h3 className="font-bold text-lg">{productName}</h3>
         {productPrice && <p className="text-green-400 font-bold">Bs {productPrice.toFixed(2)}</p>}
       </div>
@@ -99,7 +100,7 @@ export function ImageModal({
         className="relative w-full h-full flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative w-full h-[70vh]">
+        <div className="relative w-full h-[65vh]">
           <Image
             src={images[currentIndex]}
             alt={productName}
@@ -136,7 +137,7 @@ export function ImageModal({
           {currentIndex + 1} / {images.length}
         </div>
 
-        {/* ✅ BOTÓN DE WHATSAPP FLOTANTE EN EL MODAL */}
+        {/* ✅ Botón de WhatsApp con DESCRIPCIÓN */}
         {vendorPhone && vendorName && vendorId && productPrice && (
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[280px] px-4">
             <ProductWhatsAppButton
@@ -145,6 +146,7 @@ export function ImageModal({
               vendorId={vendorId}
               productName={productName}
               productPrice={productPrice}
+              productDescription={productDescription}
             />
           </div>
         )}

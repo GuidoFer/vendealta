@@ -8,6 +8,7 @@ interface ProductWhatsAppButtonProps {
   vendorId: string;
   productName: string;
   productPrice: number;
+  productDescription?: string; // ✅ NUEVO: Recibe la descripción
 }
 
 export function ProductWhatsAppButton({
@@ -16,15 +17,17 @@ export function ProductWhatsAppButton({
   vendorId,
   productName,
   productPrice,
+  productDescription, // ✅ NUEVO
 }: ProductWhatsAppButtonProps) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Evitar que abra el modal
 
-    // Mensaje personalizado con info del producto
+    // Mensaje personalizado mejorado con descripción
     const message = encodeURIComponent(
       `Hola ${vendorName}, estoy interesado en:\n\n` +
       `📦 *${productName}*\n` +
-      `💰 Precio: Bs ${productPrice.toFixed(2)}\n\n` +
+      `📝 *Detalles:* ${productDescription || 'Sin descripción'}\n` +
+      `💰 *Precio:* Bs ${productPrice.toFixed(2)}\n\n` +
       `¿Está disponible?`
     );
 
