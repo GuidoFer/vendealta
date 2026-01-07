@@ -3,12 +3,22 @@
 import { useState } from 'react';
 import { Product } from '@/types/vendor';
 import { ImageModal } from './ImageModal';
+// ✅ NUEVO: Importamos el botón que creamos en el Paso 1
+import { ProductWhatsAppButton } from '../vendor/ProductWhatsAppButton';
 
 interface ProductCardProps {
   product: Product;
+  vendorPhone: string;     // ✅ NUEVO
+  vendorName: string;      // ✅ NUEVO
+  vendorId: string;        // ✅ NUEVO
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ 
+  product, 
+  vendorPhone, 
+  vendorName, 
+  vendorId 
+}: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -36,7 +46,6 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Contenedor de Imagen */}
         {hasImages ? (
           <div className="relative w-full h-48 bg-gray-200 group">
-            {/* 🛠️ USANDO <img> ESTÁNDAR PARA LA TARJETA (Evita errores de optimización de Next.js) */}
             <img
               src={images[currentImageIndex]}
               alt={product.name}
@@ -83,11 +92,6 @@ export function ProductCard({ product }: ProductCardProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-                  {images.map((_, idx) => (
-                    <div key={idx} className={`h-1 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-4' : 'bg-white/40 w-1'}`} />
-                  ))}
-                </div>
               </>
             )}
           </div>
@@ -105,12 +109,22 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.description && (
             <p className="text-gray-500 text-xs line-clamp-2 mb-3 h-8">{product.description}</p>
           )}
-          <div className="mt-auto flex justify-between items-center">
+          
+          <div className="mt-auto flex justify-between items-center mb-4">
             <span className="text-xl font-extrabold text-blue-600">Bs {product.price.toFixed(2)}</span>
             <span className="text-[10px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded uppercase font-bold">
               {product.category}
             </span>
           </div>
+
+          {/* ✅ NUEVO: Botón WhatsApp por producto */}
+          <ProductWhatsAppButton
+            phone={vendorPhone}
+            vendorName={vendorName}
+            vendorId={vendorId}
+            productName={product.name}
+            productPrice={product.price}
+          />
         </div>
       </div>
 
@@ -122,6 +136,11 @@ export function ProductCard({ product }: ProductCardProps) {
         onNext={handleNext}
         onPrev={handlePrev}
         productName={product.name}
+        // ✅ Pasamos las props al modal por si quieres habilitar el botón allí también (Paso 5)
+        vendorPhone={vendorPhone}
+        vendorName={vendorName}
+        vendorId={vendorId}
+        productPrice={product.price}
       />
     </>
   );

@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
+// ✅ Importamos el botón de WhatsApp
+import { ProductWhatsAppButton } from '../vendor/ProductWhatsAppButton';
 
 interface ImageModalProps {
   images: string[];
@@ -11,9 +13,13 @@ interface ImageModalProps {
   onNext: () => void;
   onPrev: () => void;
   productName: string;
+  // ✅ NUEVAS PROPS PARA EL BOTÓN
+  vendorPhone?: string;
+  vendorName?: string;
+  vendorId?: string;
+  productPrice?: number;
 }
 
-// ✅ ASEGÚRATE DE QUE DIGA "export function"
 export function ImageModal({
   images,
   currentIndex,
@@ -22,19 +28,21 @@ export function ImageModal({
   onNext,
   onPrev,
   productName,
+  vendorPhone,
+  vendorName,
+  vendorId,
+  productPrice,
 }: ImageModalProps) {
   
   useEffect(() => {
     if (!isOpen) return;
 
-    // 🚩 ACTIVAR SEMÁFORO GLOBAL
     // @ts-ignore
     window.isModalOpen = true;
 
     const originalStyle = window.getComputedStyle(document.body).overflow;
     document.body.style.overflow = 'hidden';
 
-    // Inyectar estado en el historial
     window.history.pushState({ isModal: true }, '');
 
     const handlePopState = () => {
@@ -49,7 +57,6 @@ export function ImageModal({
       window.removeEventListener('popstate', handlePopState);
       document.body.style.overflow = originalStyle;
       
-      // Manejo de cierre manual (X o fuera)
       if (window.history.state?.isModal) {
         // @ts-ignore
         window.isModalOpen = true; 
@@ -71,21 +78,28 @@ export function ImageModal({
 
   return (
     <div
-      className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center p-0 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[999] bg-black/95 flex flex-col items-center justify-center p-0 animate-in fade-in duration-200"
       onClick={onClose}
     >
+      {/* Botón Cerrar */}
       <button
         onClick={(e) => { e.stopPropagation(); onClose(); }}
-        className="absolute top-6 right-6 text-white text-4xl font-light z-[1000] w-12 h-12 flex items-center justify-center bg-black/20 rounded-full"
+        className="absolute top-6 right-6 text-white text-4xl font-light z-[1000] w-12 h-12 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors"
       >
         ×
       </button>
+
+      {/* Nombre del Producto en el Modal */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-[1000] text-white text-center">
+        <h3 className="font-bold text-lg">{productName}</h3>
+        {productPrice && <p className="text-green-400 font-bold">Bs {productPrice.toFixed(2)}</p>}
+      </div>
 
       <div
         className="relative w-full h-full flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative w-full h-[80vh]">
+        <div className="relative w-full h-[70vh]">
           <Image
             src={images[currentIndex]}
             alt={productName}
@@ -100,7 +114,7 @@ export function ImageModal({
           <>
             <button
               onClick={(e) => { e.stopPropagation(); onPrev(); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-4 rounded-full z-[1000]"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full z-[1000] transition-colors"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -108,7 +122,7 @@ export function ImageModal({
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onNext(); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-4 rounded-full z-[1000]"
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-4 rounded-full z-[1000] transition-colors"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -117,9 +131,23 @@ export function ImageModal({
           </>
         )}
 
-        <div className="absolute top-6 left-6 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-[1000]">
+        {/* Contador */}
+        <div className="absolute top-6 left-6 bg-white/10 text-white px-3 py-1 rounded-full text-xs z-[1000]">
           {currentIndex + 1} / {images.length}
         </div>
+
+        {/* ✅ BOTÓN DE WHATSAPP FLOTANTE EN EL MODAL */}
+        {vendorPhone && vendorName && vendorId && productPrice && (
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[280px] px-4">
+            <ProductWhatsAppButton
+              phone={vendorPhone}
+              vendorName={vendorName}
+              vendorId={vendorId}
+              productName={productName}
+              productPrice={productPrice}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

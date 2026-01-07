@@ -60,7 +60,11 @@ export default async function VendorPage({ params }: VendorPageProps) {
           {availableProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {availableProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product}
+                vendorPhone={vendor.whatsapp}
+                vendorName={vendor.name}
+                vendorId={vendor.vendor_id}
+                />
               ))}
             </div>
           ) : (

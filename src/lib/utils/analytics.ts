@@ -33,6 +33,24 @@ export const AnalyticsEvents = {
     });
   },
 
+  // ✅ NUEVO: Click en WhatsApp desde producto específico
+  productWhatsappClick: (
+    vendorName: string,
+    vendorId: string,
+    productName: string,
+    productPrice: number
+  ) => {
+    trackEvent('product_whatsapp_click', {
+      event_category: 'conversion',
+      event_label: productName,
+      vendor_id: vendorId,
+      vendor_name: vendorName,
+      product_name: productName,
+      product_price: productPrice,
+      value: 1,
+    });
+  },
+
   // Engagement secundario
   tiktokClick: (vendorName: string, vendorId: string, username: string) => {
     trackEvent('tiktok_click', {
@@ -70,5 +88,5 @@ export const AnalyticsEvents = {
       }],
       vendor_id: vendorId,
     });
-  },
+  },  
 };
