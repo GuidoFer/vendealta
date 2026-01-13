@@ -1,11 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { Smartphone, MessageCircle, BarChart3, Zap, Check, ArrowRight, Star, Rocket, Globe } from 'lucide-react';
+import { Smartphone, MessageCircle, BarChart3, Zap, Check, ArrowRight, Star, Rocket, Globe, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function HomePage() {
   const brandGradient = "bg-gradient-to-r from-[#E11D84] via-[#9333EA] to-[#4C1D95] bg-clip-text text-transparent";
+
+  // Track analytics cuando hacen click
+  const trackFormClick = () => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'click_crear_catalogo', {
+        event_category: 'conversion',
+        event_label: 'Google Forms',
+        value: 1,
+      });
+    }
+  };
+
+  const trackWhatsAppClick = () => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'click_whatsapp_ayuda', {
+        event_category: 'engagement',
+        event_label: 'WhatsApp Support',
+        value: 1,
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-fuchsia-500/30 overflow-x-hidden font-sans">
@@ -23,7 +44,6 @@ export default function HomePage() {
               <Rocket size={18} className="text-white md:hidden" />
               <Rocket size={22} className="text-white hidden md:block" />
            </div>
-           {/* MODIFICACIÓN: Vende (blanco) Alta (degradado) y Sin Uppercase */}
            <span className="text-xl md:text-2xl font-black tracking-tighter italic text-white">
             Vende<span className={`${brandGradient} pr-2`}>Alta</span>
            </span>
@@ -48,33 +68,49 @@ export default function HomePage() {
             </span>
           </div>
           
-          {/* MODIFICACIÓN: pr-4 para evitar corte en la última vocal */}
           <h1 className="text-4xl sm:text-6xl md:text-[100px] font-black mb-6 md:mb-8 tracking-[-0.05em] leading-[1.1] md:leading-[0.9]">
             Vende más con tu <br />
             <span className={`${brandGradient} italic pr-4`}>Catálogo Digital</span>
           </h1>
           
           <p className="text-base md:text-2xl text-gray-400 mb-10 md:mb-14 max-w-2xl mx-auto font-light leading-relaxed px-4">
-            La experiencia <span className="text-white font-semibold italic">Premium</span> que tus productos merecen. Diseñado para el mercado boliviano.
+            La experiencia <span className="text-white font-semibold italic">Premium</span> que tus productos merecen. 
+            <span className="block mt-2 text-sm md:text-lg text-gray-500">🌎 Disponible en toda Latinoamérica</span>
           </p>
 
+          {/* ✅ BOTONES ACTUALIZADOS */}
           <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center px-4">
+            
+            {/* 🌎 BOTÓN PRINCIPAL → GOOGLE FORMS */}
             <a 
-              href="https://wa.me/59160605127?text=Hola%2C%20quiero%20mi%20cat%C3%A1logo%20VendeAlta"
+              href="https://forms.gle/DenBvpPWF7m3KLNC9"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={trackFormClick}
               className="w-full sm:w-auto bg-[#E11D84] hover:bg-fuchsia-700 text-white px-8 py-5 md:px-10 md:py-6 rounded-2xl md:rounded-[2rem] font-black text-base md:text-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 shadow-[0_15px_40px_rgba(225,29,132,0.3)]"
             >
-              CREAR GRATIS
-              <ArrowRight size={20} />
+              <Globe size={20} />
+              CREAR MI CATÁLOGO
+              <ExternalLink size={18} className="opacity-70" />
             </a>
             
-            <Link 
-              href="/juan-perez"
+            {/* 💬 BOTÓN SECUNDARIO → WHATSAPP AYUDA */}
+            <a 
+              href="https://wa.me/59160605127?text=Hola%2C%20necesito%20ayuda%20para%20crear%20mi%20cat%C3%A1logo%20VendeAlta"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={trackWhatsAppClick}
               className="w-full sm:w-auto px-8 py-5 md:px-10 md:py-6 rounded-2xl md:rounded-[2rem] font-black text-base md:text-lg border border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all flex items-center justify-center gap-3 group"
             >
-              <Globe size={20} className="text-gray-400 group-hover:text-white" />
-              VER DEMO
-            </Link>
+              <MessageCircle size={20} className="text-green-400 group-hover:text-green-300" />
+              AYUDA POR WHATSAPP
+            </a>
           </div>
+
+          {/* 📝 Texto informativo */}
+          <p className="text-xs md:text-sm text-gray-600 mt-6 md:mt-8">
+            ✨ Llena el formulario en 1 minuto • 🚀 Tu catálogo listo en 24 horas
+          </p>
         </motion.div>
       </section>
 
@@ -105,7 +141,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 💎 Benefits & Mockup con Logo Agrandado */}
+      {/* 💎 Benefits & Mockup */}
       <section id="beneficios" className="relative z-10 py-16 md:py-40 bg-gradient-to-b from-transparent via-fuchsia-900/5 to-transparent">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
@@ -125,7 +161,6 @@ export default function HomePage() {
               <div className="relative bg-[#111] border border-white/10 p-3 md:p-4 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl max-w-[320px] md:max-w-none mx-auto">
                 <div className="bg-[#050505] rounded-[2rem] md:rounded-[3rem] aspect-[9/18] overflow-hidden border border-white/5 relative flex flex-col items-center justify-center p-6 md:p-10 text-center">
                    
-                   {/* MODIFICACIÓN: Logo mucho más grande (w-56 en móvil, w-80 en PC) */}
                    <img 
                     src="https://i.ibb.co/nsXsd7md/logo-vendealta-ofi.png" 
                     className="w-56 md:w-80 h-auto mb-6 md:mb-10 animate-float object-contain"
@@ -145,6 +180,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* 🎯 Sección "Cómo funciona" */}
+      <section className="relative z-10 py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-4xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-6xl font-black mb-6 leading-none italic">
+              <span className={`${brandGradient} pr-4`}>3 PASOS</span> SIMPLES
+            </h2>
+            <p className="text-gray-400 text-sm md:text-lg">
+              Desde el registro hasta tu primer cliente en menos de 24 horas
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <StepCard 
+              number="1"
+              title="Regístrate"
+              desc="Llena el formulario con tus datos básicos. Solo toma 1 minuto."
+              icon="📝"
+            />
+            <StepCard 
+              number="2"
+              title="Recibe tu QR"
+              desc="Te enviamos tu catálogo personalizado con tu código QR único."
+              icon="📱"
+            />
+            <StepCard 
+              number="3"
+              title="Agrega productos"
+              desc="Actualiza tu catálogo cuando quieras desde tu celular."
+              icon="🚀"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* 🏁 Footer Responsive */}
       <footer className="relative z-10 pt-16 pb-10 border-t border-white/5 bg-black px-4">
         <div className="container mx-auto text-center">
@@ -154,6 +224,7 @@ export default function HomePage() {
           
           <a 
             href="https://wa.me/59160605127"
+            onClick={trackWhatsAppClick}
             className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 md:px-12 md:py-6 rounded-full font-black text-base md:text-xl hover:scale-105 transition-all mb-16 shadow-xl"
           >
             ASESORÍA GRATIS <MessageCircle fill="black" size={20} />
@@ -161,14 +232,13 @@ export default function HomePage() {
 
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">
-               {/* MODIFICACIÓN: Footer VendeAlta con formato correcto */}
                <span className="font-black text-xl md:text-2xl tracking-tighter italic text-white">
                 Vende<span className={`${brandGradient} pr-2`}>Alta</span>
                </span>
             </div>
             
             <p className="text-gray-600 text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] uppercase font-bold">
-              © 2026 Bolivia • Impulsando el Comercio Local
+              © 2026 Latinoamérica • Impulsando el Comercio Local
             </p>
 
             <div className="flex flex-col items-center gap-4 bg-white/[0.02] border border-white/5 px-6 py-6 md:px-8 md:py-6 rounded-2xl md:rounded-3xl w-full max-w-sm md:max-w-none">
@@ -187,7 +257,11 @@ export default function HomePage() {
 
       {/* 🛰️ Floating Badge */}
       <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[100]">
-        <a href="https://wa.me/59160605127" className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-2xl flex items-center gap-3 transition-all">
+        <a 
+          href="https://wa.me/59160605127" 
+          onClick={trackWhatsAppClick}
+          className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-2xl flex items-center gap-3 hover:scale-105 transition-all"
+        >
           <MessageCircle className="text-green-500" size={20} />
           <div className="flex flex-col">
             <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter leading-none mb-1">Live Chat</span>
@@ -209,7 +283,7 @@ export default function HomePage() {
 
 function FeatureCard({ icon, title, desc, step, accent }: any) {
   return (
-    <div className="relative group bg-white/[0.02] border border-white/5 p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] overflow-hidden">
+    <div className="relative group bg-white/[0.02] border border-white/5 p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] overflow-hidden hover:border-white/10 transition-all">
       <div className="absolute top-4 right-6 text-3xl md:text-5xl font-black text-white/5 uppercase italic">{step}</div>
       <div className="mb-6 p-4 rounded-2xl w-fit shadow-inner" style={{ backgroundColor: `${accent}15` }}>
         {icon}
@@ -230,6 +304,19 @@ function BenefitItem({ title, desc, accent }: { title: string, desc: string, acc
         <h4 className="text-base md:text-xl font-bold text-white mb-0.5 tracking-tight">{title}</h4>
         <p className="text-gray-500 text-[10px] md:text-sm leading-snug">{desc}</p>
       </div>
+    </div>
+  );
+}
+
+function StepCard({ number, title, desc, icon }: { number: string, title: string, desc: string, icon: string }) {
+  return (
+    <div className="relative bg-white/[0.02] border border-white/5 p-8 rounded-3xl text-center hover:border-fuchsia-500/30 transition-all group">
+      <div className="text-6xl mb-4">{icon}</div>
+      <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center font-black text-lg text-fuchsia-400">
+        {number}
+      </div>
+      <h3 className="text-xl md:text-2xl font-black mb-3 uppercase italic">{title}</h3>
+      <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
     </div>
   );
 }
