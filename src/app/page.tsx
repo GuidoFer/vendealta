@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Smartphone, MessageCircle, BarChart3, Zap, Check, ArrowRight, Star, Rocket, Globe, ExternalLink } from 'lucide-react';
+import { Smartphone, MessageCircle, BarChart3, Check, ArrowRight, Rocket, Globe, ExternalLink, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function HomePage() {
@@ -23,6 +23,16 @@ export default function HomePage() {
       (window as any).gtag('event', 'click_whatsapp_ayuda', {
         event_category: 'engagement',
         event_label: 'WhatsApp Support',
+        value: 1,
+      });
+    }
+  };
+
+  const trackTelegramClick = () => {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'click_telegram_ayuda', {
+        event_category: 'engagement',
+        event_label: 'Telegram Support',
         value: 1,
       });
     }
@@ -54,7 +64,7 @@ export default function HomePage() {
       </nav>
 
       {/* ⚡ Hero Section Responsive */}
-      <section className="relative z-10 container mx-auto px-4 pt-10 pb-20 md:pt-32 md:pb-40">
+      <section className="relative z-10 container mx-auto px-4 pt-10 pb-12 md:pt-32 md:pb-32">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -96,7 +106,7 @@ export default function HomePage() {
             
             {/* 💬 BOTÓN SECUNDARIO → WHATSAPP AYUDA */}
             <a 
-              href="https://wa.me/59160605127?text=Hola%2C%20necesito%20ayuda%20para%20crear%20mi%20cat%C3%A1logo%20VendeAlta"
+              href="https://wa.me/59178636400?text=Hola%2C%20necesito%20ayuda%20para%20crear%20mi%20cat%C3%A1logo%20VendeAlta"
               target="_blank"
               rel="noopener noreferrer"
               onClick={trackWhatsAppClick}
@@ -107,15 +117,29 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* 📝 Texto informativo */}
-          <p className="text-xs md:text-sm text-gray-600 mt-6 md:mt-8">
-            ✨ Llena el formulario en 1 minuto • 🚀 Tu catálogo listo en 24 horas
+          {/* 📱 BOTÓN TELEGRAM */}
+          <div className="mt-4 flex justify-center">
+            <a 
+              href="https://t.me/59160605127"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={trackTelegramClick}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all text-sm md:text-base font-semibold group"
+            >
+              <Send size={16} className="text-blue-400 group-hover:text-blue-300" />
+              <span className="text-gray-300">También en Telegram</span>
+            </a>
+          </div>
+
+          {/* 📝 Texto informativo - MODIFICADO */}
+          <p className="text-xs md:text-sm text-gray-600 mt-6 md:mt-8 leading-relaxed">
+            ✨ Cuando veamos tu mensaje tu catálogo estará listo al instante
           </p>
         </motion.div>
       </section>
 
-      {/* 🧩 Features Grid */}
-      <section id="funciona" className="relative z-10 container mx-auto px-4 py-16 md:py-24 border-t border-white/5">
+      {/* 🧩 Features Grid - ESPACIADO REDUCIDO */}
+      <section id="funciona" className="relative z-10 container mx-auto px-4 py-8 md:py-16 border-t border-white/5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto">
           <FeatureCard 
             icon={<Smartphone className="text-fuchsia-400" size={28} />}
@@ -141,10 +165,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 💎 Benefits & Mockup */}
-      <section id="beneficios" className="relative z-10 py-16 md:py-40 bg-gradient-to-b from-transparent via-fuchsia-900/5 to-transparent">
+      {/* 💎 Benefits & Mockup - ESPACIADO REDUCIDO */}
+      <section id="beneficios" className="relative z-10 py-8 md:py-24 bg-gradient-to-b from-transparent via-fuchsia-900/5 to-transparent">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 md:gap-16 items-center">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="order-2 lg:order-1 text-center lg:text-left">
               <h2 className="text-3xl md:text-6xl font-black mb-8 md:mb-10 leading-none italic">
                 ¿POR QUÉ <span className={`${brandGradient} pr-4`}>VendeAlta?</span>
@@ -180,19 +204,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 🎯 Sección "Cómo funciona" */}
-      <section className="relative z-10 py-16 md:py-24">
+      {/* 🎯 Sección "Cómo funciona" - ESPACIADO REDUCIDO + TEXTO MODIFICADO */}
+      <section className="relative z-10 py-8 md:py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-4xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-6xl font-black mb-6 leading-none italic">
+          <div className="text-center max-w-4xl mx-auto mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-6xl font-black mb-4 md:mb-6 leading-none italic">
               <span className={`${brandGradient} pr-4`}>3 PASOS</span> SIMPLES
             </h2>
-            <p className="text-gray-400 text-sm md:text-lg">
-              Desde el registro hasta tu primer cliente en menos de 24 horas
+            <p className="text-gray-400 text-xs md:text-lg leading-relaxed">
+              Desde el registro hasta tu primer cliente apenas recibamos y veamos tu mensaje
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
             <StepCard 
               number="1"
               title="Regístrate"
@@ -215,20 +239,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 🏁 Footer Responsive */}
-      <footer className="relative z-10 pt-16 pb-10 border-t border-white/5 bg-black px-4">
+      {/* 🏁 Footer Responsive - ESPACIADO REDUCIDO */}
+      <footer className="relative z-10 pt-8 md:pt-16 pb-10 border-t border-white/5 bg-black px-4">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-7xl font-black mb-8 md:mb-12 tracking-tight italic leading-tight">
             EL FUTURO ES <br /> <span className={`${brandGradient} pr-4`}>DIGITAL.</span>
           </h2>
           
-          <a 
-            href="https://wa.me/59160605127"
-            onClick={trackWhatsAppClick}
-            className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 md:px-12 md:py-6 rounded-full font-black text-base md:text-xl hover:scale-105 transition-all mb-16 shadow-xl"
-          >
-            ASESORÍA GRATIS <MessageCircle fill="black" size={20} />
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 md:mb-16">
+            <a 
+              href="https://wa.me/59178636400"
+              onClick={trackWhatsAppClick}
+              className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 md:px-12 md:py-6 rounded-full font-black text-base md:text-xl hover:scale-105 transition-all shadow-xl"
+            >
+              ASESORÍA GRATIS <MessageCircle fill="black" size={20} />
+            </a>
+
+            <a 
+              href="https://t.me/59160605127"
+              onClick={trackTelegramClick}
+              className="inline-flex items-center gap-3 border border-white/10 bg-white/5 text-white px-8 py-4 md:px-12 md:py-6 rounded-full font-black text-base md:text-xl hover:scale-105 hover:bg-white/10 transition-all"
+            >
+              TELEGRAM <Send size={20} />
+            </a>
+          </div>
 
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">
@@ -246,28 +280,48 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
                 <span className="text-xs md:text-sm font-black tracking-tighter text-gray-300 italic">SIA • SOLUCIONES CON IA</span>
                 <div className="h-px w-10 md:h-4 md:w-[1px] bg-white/10" />
-                <a href="https://wa.me/59160605127" className="text-fuchsia-400 text-xs md:text-sm font-bold flex items-center gap-2 hover:text-white transition-all">
-                  <MessageCircle size={14} /> 60605127
-                </a>
+                <div className="flex flex-col sm:flex-row gap-2 items-center">
+                  <a href="https://wa.me/59178636400" className="text-fuchsia-400 text-xs md:text-sm font-bold flex items-center gap-2 hover:text-white transition-all">
+                    <MessageCircle size={14} /> 78636400
+                  </a>
+                  <span className="text-gray-600">•</span>
+                  <a href="https://t.me/59160605127" className="text-blue-400 text-xs md:text-sm font-bold flex items-center gap-2 hover:text-white transition-all">
+                    <Send size={14} /> Telegram
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* 🛰️ Floating Badge */}
+      {/* 🛰️ Floating Badge - NÚMEROS ACTUALIZADOS */}
       <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[100]">
-        <a 
-          href="https://wa.me/59160605127" 
-          onClick={trackWhatsAppClick}
-          className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-2xl flex items-center gap-3 hover:scale-105 transition-all"
-        >
-          <MessageCircle className="text-green-500" size={20} />
-          <div className="flex flex-col">
-            <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter leading-none mb-1">Live Chat</span>
-            <span className="text-[10px] md:text-xs font-bold text-white">¿Ayuda?</span>
-          </div>
-        </a>
+        <div className="flex flex-col gap-2">
+          <a 
+            href="https://wa.me/59178636400" 
+            onClick={trackWhatsAppClick}
+            className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-2xl flex items-center gap-3 hover:scale-105 transition-all"
+          >
+            <MessageCircle className="text-green-500" size={20} />
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter leading-none mb-1">WhatsApp</span>
+              <span className="text-[10px] md:text-xs font-bold text-white">¿Ayuda?</span>
+            </div>
+          </a>
+
+          <a 
+            href="https://t.me/59160605127" 
+            onClick={trackTelegramClick}
+            className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-4 rounded-xl md:rounded-2xl shadow-2xl flex items-center gap-3 hover:scale-105 transition-all"
+          >
+            <Send className="text-blue-400" size={20} />
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter leading-none mb-1">Telegram</span>
+              <span className="text-[10px] md:text-xs font-bold text-white">Chat</span>
+            </div>
+          </a>
+        </div>
       </div>
 
       <style jsx global>{`
@@ -283,7 +337,7 @@ export default function HomePage() {
 
 function FeatureCard({ icon, title, desc, step, accent }: any) {
   return (
-    <div className="relative group bg-white/[0.02] border border-white/5 p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] overflow-hidden hover:border-white/10 transition-all">
+    <div className="relative group bg-white/[0.02] border border-white/5 p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] overflow-hidden hover:border-white/10 transition-all">
       <div className="absolute top-4 right-6 text-3xl md:text-5xl font-black text-white/5 uppercase italic">{step}</div>
       <div className="mb-6 p-4 rounded-2xl w-fit shadow-inner" style={{ backgroundColor: `${accent}15` }}>
         {icon}
@@ -310,8 +364,8 @@ function BenefitItem({ title, desc, accent }: { title: string, desc: string, acc
 
 function StepCard({ number, title, desc, icon }: { number: string, title: string, desc: string, icon: string }) {
   return (
-    <div className="relative bg-white/[0.02] border border-white/5 p-8 rounded-3xl text-center hover:border-fuchsia-500/30 transition-all group">
-      <div className="text-6xl mb-4">{icon}</div>
+    <div className="relative bg-white/[0.02] border border-white/5 p-6 md:p-8 rounded-3xl text-center hover:border-fuchsia-500/30 transition-all group">
+      <div className="text-5xl md:text-6xl mb-4">{icon}</div>
       <div className="absolute top-4 left-4 w-10 h-10 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center font-black text-lg text-fuchsia-400">
         {number}
       </div>
